@@ -1,3 +1,11 @@
+const numberButtons = document.querySelectorAll(".buttonNumber");
+const operatorButtons = document.querySelectorAll(".operator");
+const display = document.querySelector("#display");
+const equalsButton = document.querySelector(".equals");
+const deleteButton = document.querySelector(".delete");
+const decimalButton = document.querySelector(".dot");
+const clearButton = document.querySelector(".clear");
+
 let firstNumber = "";
 let secondNumber = "";
 let operator = "";
@@ -12,7 +20,7 @@ function updateDisplay() {
     displayString += " " + secondNumber;
   }
 
-  display.textContent = displayString;
+  display.textContent = displayString || "";
 }
 
 function add(a, b) {
@@ -22,8 +30,8 @@ function subtract(a, b) {
   return a - b;
 }
 function divide(a, b) {
-  if (b === "0") {
-    return "nice try Einstein";
+  if (b === 0) {
+    return "Error";
   }
   return a / b;
 }
@@ -32,6 +40,9 @@ function multiply(a, b) {
 }
 
 function operate(op, a, b) {
+  a = Number(a);
+  b = Number(b);
+
   switch (op) {
     case "+":
       return add(a, b);
@@ -42,92 +53,84 @@ function operate(op, a, b) {
     case "*":
       return multiply(a, b);
     default:
-        return "error";
+      return null;
   }
 }
 
-const buttonsNumber = document.querySelectorAll(".buttonNumber");
-const buttonsOperator = document.querySelectorAll(".operator");
-const display = document.querySelector("#display");
-const equalsButton = document.querySelector(".equals");
-const deleteButton = document.querySelector(".delete");
-const decimalButton = document.querySelector(".dot");
-const clearButton = document.querySelector(".clear");
-
 clearButton.addEventListener("click", () => {
-firstNumber = "";
-secondNumber = "";
-operator = "";
-updateDisplay();
+  firstNumber = "";
+  secondNumber = "";
+  operator = "";
+  updateDisplay();
 });
 
-buttonsNumber.forEach((button) => {
-    button.addEventListener("click", () => {
-        if(operator === "") {
-            firstNumber += button.textContent;
-        } else {
-            secondNumber += button.textContent;
-        }
-
-        updateDisplay();
-    })
-})
-
-buttonsOperator.forEach((button) => {
-    button.addEventListener("click", () => {
-        if(firstNumber !== "" && secondNumber !== ""){
-            let result = operate(operator, firstNumber, secondNumber);
-            firstNumber = result.toString();
-            secondNumber = "";
-        }
-        if(firstNumber !== ""){
-            operator = button.textContent;
-            updateDisplay();
-        }
-    });
-});
-
-
-equalsButton.addEventListener("click", () => {
-    if (firstNumber !== "" && secondNumber !== "" && operator !== "") {
-        let result = operate(operator, firstNumber, secondNumber);
-        display.textContent = result;
-
-        firstNumber = result.toString();
-        operator = "";
-        secondNumber = "";
-        
-    }
-});
-
-deleteButton.addEventListener("click", () => {
-    if (secondNumber !== "") {
-        secondNumber = secondNumber.slice(0, -1);
-    } else if (operator !== "") {
-        operator = "";
-    } else if ( firstNumber !== "") {
-        firstNumber = firstNumber.slice(0, -1);
+numberButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (operator === "") {
+      firstNumber += button.textContent;
     } else {
-        return "error";
+      secondNumber += button.textContent;
     }
+
     updateDisplay();
+  });
 });
 
+function roundResult(num) {
+  return Math.round(num * 1000) / 1000;
+}
+
+operatorButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (firstNumber !== "" && secondNumber !== "") {
+      let result = roundResult(operate(operator, firstNumber, secondNumber));
+      firstNumber = result.toString();
+      secondNumber = "";
+    }
+    if (firstNumber !== "") {
+      operator = button.textContent;
+      updateDisplay();
+    }
+  });
+});
 
 decimalButton.addEventListener("click", () => {
-  if(operator === "") {
-    if(!firstNumber.includes(".")) {
-      if (firstNumber === "") 
-      firstNumber = "0";
+  if (operator === "") {
+    if (!firstNumber.includes(".")) {
+      if (firstNumber === "") firstNumber = "0";
       firstNumber += ".";
-       updateDisplay();
+      updateDisplay();
     }
   } else {
-    if(!secondNumber.includes(".")) {
+    if (!secondNumber.includes(".")) {
       secondNumber += ".";
-      if (secondNumber === "") 
-      secondNumber = "0";
-       updateDisplay();
+      if (secondNumber === "") secondNumber = "0";
+      updateDisplay();
     }
   }
 });
+
+deleteButton.addEventListener("click", () => {
+  if (secondNumber !== "") {
+    secondNumber = secondNumber.slice(0, -1);
+  } else if (operator !== "") {
+    operator = "";
+  } else if (firstNumber !== "") {
+    firstNumber = firstNumber.slice(0, -1);
+  } else {
+    return "error";
+  }
+  updateDisplay();
+});
+
+equalsButton.addEventListener("click", () => {
+  if (firstNumber !== "" && secondNumber !== "" && operator !== "") {
+    let result = roundResult(operate(operator, firstNumber, secondNumber));
+    display.textContent = result;
+    firstNumber = result.toString();
+    operator = "";
+    secondNumber = "";
+  }
+});
+
+
