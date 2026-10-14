@@ -1,76 +1,133 @@
-const display = document.querySelector(".display");
-const btns = document.querySelector("button");
-
-let currentInput = "";
-let previousInput = null;
-let operator = null;
-let shouldResetDisplay = false;
+let firstNumber = "";
+let secondNumber = "";
+let operator = "";
 
 function updateDisplay() {
-    display.value = currentInput;
+  let displayString = firstNumber;
+
+  if (operator !== "") {
+    displayString += " " + operator;
+  }
+  if (secondNumber !== "") {
+    displayString += " " + secondNumber;
+  }
+
+  display.textContent = displayString;
 }
 
-function inputNumber (num) {
-    if(shouldResetDisplay) {
-        currentInput = num === "." ? "0." : num ;
-        shouldResetDisplay = false;
+function add(a, b) {
+  return a + b;
+}
+function subtract(a, b) {
+  return a - b;
+}
+function divide(a, b) {
+  if (b === "0") {
+    return "nice try Einstein";
+  }
+  return a / b;
+}
+function multiply(a, b) {
+  return a * b;
+}
+
+function operate(op, a, b) {
+  switch (op) {
+    case "+":
+      return add(a, b);
+    case "-":
+      return subtract(a, b);
+    case "/":
+      return divide(a, b);
+    case "*":
+      return multiply(a, b);
+    default:
+        return "error";
+  }
+}
+
+const buttonsNumber = document.querySelectorAll(".buttonNumber");
+const buttonsOperator = document.querySelectorAll(".operator");
+const display = document.querySelector("#display");
+const equalsButton = document.querySelector(".equals");
+const deleteButton = document.querySelector(".delete");
+const decimalButton = document.querySelector(".dot");
+const clearButton = document.querySelector(".clear");
+
+clearButton.addEventListener("click", () => {
+firstNumber = "";
+secondNumber = "";
+operator = "";
+updateDisplay();
+});
+
+buttonsNumber.forEach((button) => {
+    button.addEventListener("click", () => {
+        if(operator === "") {
+            firstNumber += button.textContent;
+        } else {
+            secondNumber += button.textContent;
+        }
+
         updateDisplay();
-        return;
+    })
+})
+
+buttonsOperator.forEach((button) => {
+    button.addEventListener("click", () => {
+        if(firstNumber !== "" && secondNumber !== ""){
+            let result = operate(operator, firstNumber, secondNumber);
+            firstNumber = result.toString();
+            secondNumber = "";
+        }
+        if(firstNumber !== ""){
+            operator = button.textContent;
+            updateDisplay();
+        }
+    });
+});
+
+
+equalsButton.addEventListener("click", () => {
+    if (firstNumber !== "" && secondNumber !== "" && operator !== "") {
+        let result = operate(operator, firstNumber, secondNumber);
+        display.textContent = result;
+
+        firstNumber = result.toString();
+        operator = "";
+        secondNumber = "";
+        
     }
-    if(num === "." && currentInput.includes(".")) {
-        return;
-    }
-    if(currentInput === "0" && num !== ".") {
-        currentInput = num;
+});
+
+deleteButton.addEventListener("click", () => {
+    if (secondNumber !== "") {
+        secondNumber = secondNumber.slice(0, -1);
+    } else if (operator !== "") {
+        operator = "";
+    } else if ( firstNumber !== "") {
+        firstNumber = firstNumber.slice(0, -1);
     } else {
-        currentInput += num;
+        return "error";
     }
     updateDisplay();
-}
+});
 
-function calculate (operator, num1, num2 ) {
-    switch (operator) {
-        case "+":
-            return num1 + num2;
-        case "-":
-            return num1 - num2;
-        case "*":
-            return num1 * num2;
-        case "/":
-            return num2 === 0 ? "Error" : num1 / num2;
-        default:
-            return num2
+
+decimalButton.addEventListener("click", () => {
+  if(operator === "") {
+    if(!firstNumber.includes(".")) {
+      if (firstNumber === "") 
+      firstNumber = "0";
+      firstNumber += ".";
+       updateDisplay();
     }
-}
-
-function chooseOperator (nextOperator) {
-    if (operator !== null && !shouldResetDisplay) {
-        calculate();
+  } else {
+    if(!secondNumber.includes(".")) {
+      secondNumber += ".";
+      if (secondNumber === "") 
+      secondNumber = "0";
+       updateDisplay();
     }
-    previousInput = Number(currentInput);
-    operator = nextOperator;
-    shouldResetDisplay = true;
-}
-
-function performCalculate () {
-    if(operator === null || previousInput === null){
-        return;
-    }
-
-    const num1 = previousInput;
-    const num2 = Number(currentInput);
-    const result = calculate(num1, num2, operator);
-
-    if(result === "Error") {
-        currentInput = "Error"; 
-    } else {
-        currentInput = string(Number(result.toPrecision(12))
-        );
-    }
-
-    previousInput = null;
-    operator = null;
-    shouldResetDisplay = true;
-
-    updateDisplay();
-}
+  }
+});

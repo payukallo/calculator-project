@@ -24,7 +24,7 @@ main {
     background-color: rgb(186, 184, 184);
 }
 
-.display {
+#display {
     display: flex;
     justify-content: end;
     width: 100%;
