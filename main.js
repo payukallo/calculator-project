@@ -1,4 +1,4 @@
-const numberButtons = document.querySelectorAll(".buttonNumber");
+const numberButtons = document.querySelectorAll(".numberButton");
 const operatorButtons = document.querySelectorAll(".operator");
 const display = document.querySelector("#display");
 const equalsButton = document.querySelector(".equals");
@@ -20,7 +20,7 @@ function updateDisplay() {
     displayString += " " + secondNumber;
   }
 
-  display.textContent = displayString || "";
+  display.textContent = displayString;
 }
 
 function add(a, b) {
